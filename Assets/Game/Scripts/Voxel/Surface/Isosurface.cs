@@ -2,10 +2,10 @@
 
 public class Isosurface
 {
-    public bool UseCache { get; set; } = true;
+    public bool UseCache { get; set; }
 
-    private Volume<sbyte> volume;
-    private IsosurfaceCache cache;
+    private readonly Volume<sbyte> volume;
+    private readonly IsosurfaceCache cache;
 
     public Isosurface(Volume<sbyte> volume)
     {
@@ -139,7 +139,7 @@ public class Isosurface
     /// <summary>
     /// Generate a vertex from two density values.
     /// </summary>
-    private Vector3 GenerateVertex(Vector3Int offset, int value0, int value1, long alpha, int levelOfDistance)
+    private static Vector3 GenerateVertex(Vector3Int offset, int value0, int value1, long alpha, int levelOfDistance)
     {
         Vector3 p0 = offset + VoxelTables.CubeVertexOffsets[value0] * levelOfDistance;
         Vector3 p1 = offset + VoxelTables.CubeVertexOffsets[value1] * levelOfDistance;
