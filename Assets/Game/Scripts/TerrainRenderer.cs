@@ -9,7 +9,9 @@ public class TerrainRenderer : MonoBehaviour
     private Material meshMaterial;
 
     [SerializeField]
-    private float surfaceLevel;
+    private float isolevel;
+    [SerializeField]
+    private float radius;
 
     [SerializeField]
     private Vector3Int size = new Vector3Int(32, 32, 32);
@@ -17,7 +19,7 @@ public class TerrainRenderer : MonoBehaviour
     [SerializeField]
     private bool enableEditing = true;
 
-    private MarchingCubeSurface isosurface;
+    private IsosurfaceProcessor isosurface;
     private float[] voxels;
 
     [SerializeField]
@@ -33,7 +35,7 @@ public class TerrainRenderer : MonoBehaviour
 
     private void Start()
     {
-        isosurface = new MarchingCubeSurface(surfaceLevel);
+        isosurface = new IsosurfaceProcessor();
 
         meshInstance = new MeshInstance("Mesh");
         meshInstance.Transform.position = new Vector3(-size.x / 2f, -size.y / 2f, -size.y / 2f);
@@ -42,7 +44,6 @@ public class TerrainRenderer : MonoBehaviour
 
         // Generate our voxel data
         voxels = new float[size.x * size.y * size.z];
-        const int radius = 10;
 
         for (int z = 0; z < size.z; z++)
         {
@@ -65,9 +66,9 @@ public class TerrainRenderer : MonoBehaviour
 
     private void Generate()
     {
-        isosurface.SurfaceLevel = surfaceLevel;
-        IsosurfaceMeshResult isosurfaceMesh = isosurface.Generate(voxels, size);
-        meshInstance.FromSurfaceResult(isosurfaceMesh);
+        isosurface.Isolevel = isolevel;
+        IsosurfaceMesh isosurfaceMesh = isosurface.Generate(voxels, size.x, size.y, size.z);
+        meshInstance.FromIsosurface(isosurfaceMesh);
     }
 
     private void Update()

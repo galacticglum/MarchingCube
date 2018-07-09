@@ -20,17 +20,17 @@ public class MeshInstance
         MeshRenderer = GameObject.AddComponent<MeshRenderer>();
     }
 
-    public void FromSurfaceResult(IsosurfaceMeshResult surfaceResult)
+    public void FromIsosurface(IsosurfaceMesh surface)
     {
         MeshFilter.sharedMesh = new Mesh();
-        Mesh.SetVertices(surfaceResult.Vertices);
-        Mesh.SetTriangles(surfaceResult.Indices, 0);
+        Mesh.SetVertices(surface.Vertices);
+        Mesh.SetTriangles(surface.Indices, 0);
 
-        if (surfaceResult.Normals != null)
-        {
-            Mesh.SetNormals(surfaceResult.Normals);
-        }
-        else
+        //if (surface.Normals != null)
+        //{
+        //    Mesh.SetNormals(surface.Normals);
+        //}
+        //else
         {
             Mesh.RecalculateNormals();
         }

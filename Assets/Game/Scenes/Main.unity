@@ -400,8 +400,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   meshMaterial: {fileID: 2100000, guid: f32b924216f1e7749bd332e154d7b401, type: 2}
-  surfaceLevel: 0
-  size: {x: 32, y: 32, z: 32}
+  isolevel: 0
+  radius: 3
+  size: {x: 10, y: 10, z: 10}
   enableEditing: 1
   test: {fileID: 2055800628}
   modificationPower: 10
