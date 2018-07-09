@@ -383,7 +383,7 @@ Transform:
   m_GameObject: {fileID: 1474270143}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 10, y: 10, z: 10}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 2
@@ -399,12 +399,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b719f14a210d3d41990b0fb061e631a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  meshMaterial: {fileID: 2100000, guid: f32b924216f1e7749bd332e154d7b401, type: 2}
-  surfaceLevel: 0
-  size: {x: 32, y: 32, z: 32}
-  enableEditing: 1
-  test: {fileID: 2055800628}
-  modificationPower: 10
+  mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+  material: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
 --- !u!1 &1546580101
 GameObject:
   m_ObjectHideFlags: 0

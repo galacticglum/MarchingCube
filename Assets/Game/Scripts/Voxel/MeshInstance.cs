@@ -10,12 +10,24 @@ public class MeshInstance
 
     public Mesh Mesh => MeshFilter.sharedMesh;
 
-    public MeshInstance(string name)
+    public MeshInstance(string name, Transform parent = null)
     {
         GameObject = new GameObject(name);
 
+        if (parent != null)
+        {
+            GameObject.transform.SetParent(parent, false);
+        }
+
         MeshFilter = GameObject.AddComponent<MeshFilter>();
         MeshRenderer = GameObject.AddComponent<MeshRenderer>();
+    }
+
+    public void FromMesh(Mesh mesh, Material material = null)
+    {
+        MeshFilter.sharedMesh = mesh;
+        if (material == null) return;
+        MeshRenderer.sharedMaterial = material;
     }
 
     public void FromSurfaceResult(IsosurfaceMesh surface)
@@ -49,9 +61,9 @@ public class MeshInstance
 
         for (int i = 0; i < triangles.Length; i += 3)
         {
-            Vector3 p1 = vertices[triangles[i]] + Transform.position;
-            Vector3 p2 = vertices[triangles[i + 1]] + Transform.position;
-            Vector3 p3 = vertices[triangles[i + 2]] + Transform.position;
+            Vector3 p1 = Transform.TransformPoint(vertices[triangles[i]]);
+            Vector3 p2 = Transform.TransformPoint(vertices[triangles[i + 1]]);
+            Vector3 p3 = Transform.TransformPoint(vertices[triangles[i + 2]]);
 
             Vector3 intersection;
             if (!Intersect(p1, p2, p3, ray, out intersection)) continue;
