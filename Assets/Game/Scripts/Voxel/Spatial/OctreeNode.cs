@@ -119,7 +119,7 @@ public class OctreeNode<T>
         {
             if (Depth == minimumDepth)
             {
-                this.Value = value;
+                Value = value;
                 return;
             }
 
