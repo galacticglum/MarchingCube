@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class MeshInstance
 {
@@ -20,15 +18,15 @@ public class MeshInstance
         MeshRenderer = GameObject.AddComponent<MeshRenderer>();
     }
 
-    public void FromSurfaceResult(IsosurfaceMeshResult surfaceResult)
+    public void FromSurfaceResult(IsosurfaceMesh surface)
     {
         MeshFilter.sharedMesh = new Mesh();
-        Mesh.SetVertices(surfaceResult.Vertices);
-        Mesh.SetTriangles(surfaceResult.Indices, 0);
+        Mesh.SetVertices(surface.Vertices);
+        Mesh.SetTriangles(surface.Indices, 0);
 
-        if (surfaceResult.Normals != null)
+        if (surface.Normals != null)
         {
-            Mesh.SetNormals(surfaceResult.Normals);
+            Mesh.SetNormals(surface.Normals);
         }
         else
         {
@@ -46,23 +44,29 @@ public class MeshInstance
         int[] triangles = Mesh.triangles;
         Vector3[] vertices = Mesh.vertices;
 
-        Dictionary<float, Vector3> intersections = new Dictionary<float, Vector3>();
+        bool foundIntersection = false;
+        float shortestDistance = Mathf.Infinity;
+
         for (int i = 0; i < triangles.Length; i += 3)
         {
             Vector3 p1 = vertices[triangles[i]] + Transform.position;
             Vector3 p2 = vertices[triangles[i + 1]] + Transform.position;
             Vector3 p3 = vertices[triangles[i + 2]] + Transform.position;
 
-            if (!Intersect(p1, p2, p3, ray, out point)) continue;
+            Vector3 intersection;
+            if (!Intersect(p1, p2, p3, ray, out intersection)) continue;
 
-            float distance = Vector3.Distance(ray.origin, point);
-            intersections[distance] = point;
+            float distance = Vector3.Distance(ray.origin, intersection);
+            if (distance < shortestDistance)
+            {
+                shortestDistance = distance;
+                point = intersection;
+            }
+
+            foundIntersection = true;
         }
 
-        if (intersections.Count == 0) return false;
-
-        point = intersections[intersections.Min(pair => pair.Key)];
-        return true;
+        return foundIntersection;
     }
 
     public static bool Intersect(Vector3 p1, Vector3 p2, Vector3 p3, Ray ray, out Vector3 point)

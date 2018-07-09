@@ -64,7 +64,7 @@ public class TerrainRenderer : MonoBehaviour
     private void Generate()
     {
         isosurface.SurfaceLevel = surfaceLevel;
-        IsosurfaceMeshResult isosurfaceMesh = isosurface.Generate(voxels, size);
+        IsosurfaceMesh isosurfaceMesh = isosurface.Generate(voxels, size);
         meshInstance.FromSurfaceResult(isosurfaceMesh);
     }
 
