@@ -26,7 +26,7 @@ public class Transvoxel
                 spatialChunk.Position + new Vector3Int(spatialChunk.Size, spatialChunk.Size, spatialChunk.Size)),
             Position = spatialChunk.Position,
             LevelOfDistance = levelOfDistance,
-            Mesh = chunkMesh
+            IsosurfaceMesh = chunkMesh
         };
 
         if (Chunks.ContainsKey(spatialChunk.Position))

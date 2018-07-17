@@ -12,7 +12,7 @@ public class Isosurface
         this.volume = volume;
 
         UseCache = true;
-        cache = new IsosurfaceCache(volume.Size);
+        cache = new IsosurfaceCache(volume.Size * 10);
     }
 
     public IsosurfaceMesh Generate(SpatialChunk<sbyte> chunk)
@@ -54,7 +54,7 @@ public class Isosurface
         int edgeFlagIndex = 0;
         for (int i = 0; i < 8; i++)
         {
-            edgeFlagIndex |= (cube[i] >> (7 - i)) & 1;
+            edgeFlagIndex |= (cube[i] >> (7 - i)) & (1 << i);
         }
 
         // If this is equal to zero then it means that there
@@ -80,7 +80,7 @@ public class Isosurface
         for (int i = 0; i < cell.VertexCount; i++)
         {
             int edge = vertices[i] >> 8;
-            int cacheVertex = edge & 0xf;
+            int cacheVertexIndex = edge & 0xf;
             int edgeDirection = edge >> 4;
 
             int v0 = (vertices[i] >> 4) & 0x0f;
@@ -100,9 +100,9 @@ public class Isosurface
             int index = -1;
             if (UseCache && v1 != 7 && (edgeDirection & directionMask) == edgeDirection)
             {
-                Debug.Assert(cacheVertex != 0);
+                Debug.Assert(cacheVertexIndex != 0);
                 IsosurfaceCacheCell cacheCell = cache.GetCachedCell(position, edgeDirection);
-                index = cacheCell.Vertices[index];
+                index = cacheCell.Vertices[cacheVertexIndex];
             }
 
             // If the index is still -1 then either we are not
@@ -120,7 +120,7 @@ public class Isosurface
 
             if ((edgeDirection & 8) != 0)
             {
-                cache.SetCachedCell(position, cacheVertex, isosurfaceMesh.IndexOfLastVertex);
+                cache.SetCachedCell(position, cacheVertexIndex, isosurfaceMesh.IndexOfLastVertex);
             }
 
             indices[i] = index;
@@ -152,7 +152,7 @@ public class Isosurface
     private static Vector3 InterpolateVertex(Vector3 p0, Vector3 p1, long alpha)
     {
         const float s = 0.00390625F;
-        long u = 0x100 - alpha;
+        long u = 0x0100 - alpha;
 
         Vector3 q = (p0 * alpha + p1 * u) * s;
         return q;

@@ -1,10 +1,18 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class SpatialVolume<T> : Volume<T> where T : struct
 {
+    public SpatialChunk<T>[] Chunks => data.Values.ToArray();
+
     public const int ChunkSize = 64;
-    private Dictionary<Vector3Int, SpatialChunk<T>> data;
+    private readonly Dictionary<Vector3Int, SpatialChunk<T>> data;
+
+    public SpatialVolume()
+    {
+        data = new Dictionary<Vector3Int, SpatialChunk<T>>();
+    }
 
     public override T this[int x, int y, int z]
     {

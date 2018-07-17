@@ -30,7 +30,7 @@ public class MeshInstance
         MeshRenderer.sharedMaterial = material;
     }
 
-    public void FromSurfaceResult(IsosurfaceMesh surface)
+    public void FromSurfaceResult(IsosurfaceMesh surface, Material material = null)
     {
         MeshFilter.sharedMesh = new Mesh();
         Mesh.SetVertices(surface.Vertices);
@@ -45,7 +45,10 @@ public class MeshInstance
             Mesh.RecalculateNormals();
         }
 
-        Mesh.RecalculateBounds();
+        //Mesh.RecalculateBounds();
+
+        if (material == null) return;
+        MeshRenderer.sharedMaterial = material;
     }
 
     public bool Raycast(Ray ray, out Vector3 point)

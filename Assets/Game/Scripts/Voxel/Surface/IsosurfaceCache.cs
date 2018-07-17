@@ -49,8 +49,8 @@ public class IsosurfaceCache
     public IsosurfaceCacheCell GetCachedCell(Vector3Int position, int edgeDirection)
     {
         int ex = edgeDirection & 1;
-        int ey = (edgeDirection >> 1) & 1;
-        int ez = (edgeDirection >> 2) & 1;
+        int ey = (edgeDirection >> 2) & 1;
+        int ez = (edgeDirection >> 1) & 1;
 
         int dx = position.x - ex;
         int dy = position.y - ey;

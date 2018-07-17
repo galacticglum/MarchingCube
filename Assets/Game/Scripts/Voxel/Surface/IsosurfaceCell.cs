@@ -3,7 +3,7 @@
     public byte[] Indices { get; }
 
     public int VertexCount => geometryCount >> 4;
-    public int TriangleCount => geometryCount >> 0x0F;
+    public int TriangleCount => geometryCount & 0x0F;
 
     private readonly byte geometryCount;
 
