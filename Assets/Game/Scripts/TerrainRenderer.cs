@@ -29,6 +29,8 @@ public class TerrainRenderer : MonoBehaviour
     private MeshInstance meshInstance;
 
     [SerializeField]
+    private float modificationRadius = 2;
+    [SerializeField]
     private float modificationPower = 10;
 
     private void Start()
@@ -103,12 +105,16 @@ public class TerrainRenderer : MonoBehaviour
                     float sy = y - size.y / 2;
                     float sz = z - size.z / 2;
 
-                    int n = x + y * size.x + z * size.x * size.y;
-                    float modificationDensity = modificationPower / ((sx - position.x) * (sx - position.x) +
-                                                                     (sy - position.y) * (sy - position.y) +
-                                                                     (sz - position.z) * (sz - position.z));
+                    float distance = (sx - position.x) * (sx - position.x) +
+                                     (sy - position.y) * (sy - position.y) +
+                                     (sz - position.z) * (sz - position.z);
 
+                    if(distance >= modificationRadius * modificationRadius) continue;
+
+                    float modificationDensity = modificationPower / distance;
                     modificationDensity *= destroy ? 1 : -1;
+
+                    int n = x + y * size.x + z * size.x * size.y;
                     voxels[n] += modificationDensity;
                 }
             }

@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 public class MarchingCubeSurface
@@ -312,6 +314,13 @@ public class MarchingCubeSurface
         {1, 1, 1},
         {0, 1, 1}
     };
+    
+    [StructLayout(LayoutKind.Sequential, Pack = 0)]
+    private struct Edge
+    {
+        public Vector3 Vertex1 { get; }
+        public Vector3 Vertex2 { get; }
+    }
 
     /// <summary>
     /// The iso surface-level
@@ -319,7 +328,14 @@ public class MarchingCubeSurface
     public float SurfaceLevel { get; set; }
 
     private readonly List<Vector3> vertices = new List<Vector3>();
+    private readonly List<Vector3> normals = new List<Vector3>();
     private readonly List<int> indices = new List<int>();
+
+    /// <summary>
+    ///  Maps an edge to the first index of a triangle's indices.
+    /// </summary>
+    private readonly Dictionary<Edge, int> neighbourMap = new Dictionary<Edge, int>();
+
     private readonly Vector3[] edgeVertex = new Vector3[12];
 
     public MarchingCubeSurface(float surfaceLevel = 0.5f)
@@ -333,8 +349,10 @@ public class MarchingCubeSurface
         float[] cell = new float[8];
 
         vertices.Clear();
+        normals.Clear();
         indices.Clear();
-
+        neighbourMap.Clear();
+        
         for (int x = 0; x < size.x - 1; x++)
         {
             for (int y = 0; y < size.y - 1; y++)
@@ -346,6 +364,7 @@ public class MarchingCubeSurface
                     // Setup the cell data
                     for (int i = 0; i < 8; i++)
                     {
+
                         int ix = x + CubeVertexOffsets[i, 0];
                         int iy = y + CubeVertexOffsets[i, 1];
                         int iz = z + CubeVertexOffsets[i, 2];
@@ -383,20 +402,31 @@ public class MarchingCubeSurface
                     {
                         if (TriangleTable[edgeFlagIndex, 3 * i] < 0) break;
 
-                        int index = vertices.Count;
-                        for (int j = 0; j < 3; j++)
-                        {
-                            int vertex = TriangleTable[edgeFlagIndex, 3 * i + j];
+                        Vector3 v1 = edgeVertex[TriangleTable[edgeFlagIndex, 3 * i + 0]];
+                        Vector3 v2 = edgeVertex[TriangleTable[edgeFlagIndex, 3 * i + 1]];
+                        Vector3 v3 = edgeVertex[TriangleTable[edgeFlagIndex, 3 * i + 2]];
 
-                            vertices.Add(edgeVertex[vertex]);
-                            indices.Add(index + windingOrder[j]);
-                        }
+                        vertices.Add(v1);
+                        indices.Add(vertices.Count + windingOrder[0]);
+                        vertices.Add(v2);
+
+                        indices.Add(vertices.Count + windingOrder[1]);
+
+                        vertices.Add(v3);
+                        indices.Add(vertices.Count + windingOrder[2]);
+
+                        normals.Add(Vector3.Cross(v2 - v1, v3 - v1).normalized);
                     }
                 }
             }
         }
 
-        return new IsosurfaceMeshResult(vertices, null, indices);
+        return Triangulate(vertices, normals, indices);
+    }
+
+    private IsosurfaceMeshResult Triangulate(List<Vector3> rawVertices, List<Vector3> rawNormals, List<int> rawIndices)
+    {
+        throw new NotImplementedException();
     }
 
     /// <summary>
