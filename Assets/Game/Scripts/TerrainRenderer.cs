@@ -74,7 +74,6 @@ public class TerrainRenderer : MonoBehaviour
 
     private void Update()
     {
-        Generate();
         if (meshInstance == null) return;
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
@@ -95,15 +94,19 @@ public class TerrainRenderer : MonoBehaviour
 
     private void AddModification(Vector3 position, bool destroy = true)
     {
-        for (int z = 0; z < size.z; z++)
+        int sizeX = size.x;
+        int sizeY = size.y;
+        int sizeZ = size.z;
+
+        for (int z = 0; z < sizeZ; z++)
         {
-            for (int y = 0; y < size.y; y++)
+            for (int y = 0; y < sizeY; y++)
             {
-                for (int x = 0; x < size.x; x++)
+                for (int x = 0; x < sizeX; x++)
                 {
-                    float sx = x - size.x / 2;
-                    float sy = y - size.y / 2;
-                    float sz = z - size.z / 2;
+                    float sx = x - sizeX / 2;
+                    float sy = y - sizeY / 2;
+                    float sz = z - sizeZ / 2;
 
                     float distance = (sx - position.x) * (sx - position.x) +
                                      (sy - position.y) * (sy - position.y) +
@@ -114,7 +117,7 @@ public class TerrainRenderer : MonoBehaviour
                     float modificationDensity = modificationPower / distance;
                     modificationDensity *= destroy ? 1 : -1;
 
-                    int n = x + y * size.x + z * size.x * size.y;
+                    int n = x + y * sizeX + z * sizeX * sizeY;
                     voxels[n] += modificationDensity;
                 }
             }

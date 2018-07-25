@@ -314,13 +314,6 @@ public class MarchingCubeSurface
         {1, 1, 1},
         {0, 1, 1}
     };
-    
-    [StructLayout(LayoutKind.Sequential, Pack = 0)]
-    private struct Edge
-    {
-        public Vector3 Vertex1 { get; }
-        public Vector3 Vertex2 { get; }
-    }
 
     /// <summary>
     /// The iso surface-level
@@ -330,12 +323,6 @@ public class MarchingCubeSurface
     private readonly List<Vector3> vertices = new List<Vector3>();
     private readonly List<Vector3> normals = new List<Vector3>();
     private readonly List<int> indices = new List<int>();
-
-    /// <summary>
-    ///  Maps an edge to the first index of a triangle's indices.
-    /// </summary>
-    private readonly Dictionary<Edge, int> neighbourMap = new Dictionary<Edge, int>();
-
     private readonly Vector3[] edgeVertex = new Vector3[12];
 
     public MarchingCubeSurface(float surfaceLevel = 0.5f)
@@ -345,19 +332,23 @@ public class MarchingCubeSurface
 
     public IsosurfaceMeshResult Generate(float[] voxels, Vector3Int size)
     {
-        int[] windingOrder = SurfaceLevel > 0 ? new[] { 0, 1, 2 } : new[] { 2, 1, 0 };
+        float surfaceLevel = SurfaceLevel;
+        int[] windingOrder = surfaceLevel > 0 ? new[] { 0, 1, 2 } : new[] { 2, 1, 0 };
         float[] cell = new float[8];
 
         vertices.Clear();
         normals.Clear();
         indices.Clear();
-        neighbourMap.Clear();
-        
-        for (int x = 0; x < size.x - 1; x++)
+
+        int sizeX = size.x;
+        int sizeY = size.y;
+        int sizeZ = size.z;
+
+        for (int x = 0; x < sizeX - 1; x++)
         {
-            for (int y = 0; y < size.y - 1; y++)
+            for (int y = 0; y < sizeY - 1; y++)
             {
-                for (int z = 0; z < size.z - 1; z++)
+                for (int z = 0; z < sizeZ - 1; z++)
                 {
                     int edgeFlagIndex = 0;
 
@@ -371,9 +362,9 @@ public class MarchingCubeSurface
 
                         // Transpose the 3d coordinate and get the appropriate
                         // density data
-                        cell[i] = voxels[ix + iy * size.x + iz * size.x * size.y];
+                        cell[i] = voxels[ix + iy * sizeX + iz * sizeX * sizeY];
 
-                        if (cell[i] <= SurfaceLevel)
+                        if (cell[i] <= surfaceLevel)
                         {
                             edgeFlagIndex |= 1 << i;
                         }
@@ -389,7 +380,7 @@ public class MarchingCubeSurface
                         // to do
                         if ((edgeFlag & (1 << i)) == 0) continue;
 
-                        float intersectionOffset = GetIntersection(cell[EdgeIndexTable[i, 0]], cell[EdgeIndexTable[i, 1]]);
+                        float intersectionOffset = GetIntersection(cell[EdgeIndexTable[i, 0]], cell[EdgeIndexTable[i, 1]], surfaceLevel);
 
                         edgeVertex[i].x = x + (CubeVertexOffsets[EdgeIndexTable[i, 0], 0] + intersectionOffset * EdgeDirectionTable[i, 0]);
                         edgeVertex[i].y = y + (CubeVertexOffsets[EdgeIndexTable[i, 0], 1] + intersectionOffset * EdgeDirectionTable[i, 1]);
@@ -406,25 +397,33 @@ public class MarchingCubeSurface
                         Vector3 v2 = edgeVertex[TriangleTable[edgeFlagIndex, 3 * i + 1]];
                         Vector3 v3 = edgeVertex[TriangleTable[edgeFlagIndex, 3 * i + 2]];
 
+                        int index = vertices.Count;
+
                         vertices.Add(v1);
-                        indices.Add(vertices.Count + windingOrder[0]);
+                        indices.Add(index + windingOrder[0]);
                         vertices.Add(v2);
 
-                        indices.Add(vertices.Count + windingOrder[1]);
+                        indices.Add(index + windingOrder[1]);
 
                         vertices.Add(v3);
-                        indices.Add(vertices.Count + windingOrder[2]);
+                        indices.Add(index + windingOrder[2]);
+                        
+                        Vector3 normal = Vector3.Cross((surfaceLevel > 0 ? v2 : v3) - v1, 
+                            (surfaceLevel > 0 ? v3 : v2) - v1).normalized;
 
-                        normals.Add(Vector3.Cross(v2 - v1, v3 - v1).normalized);
+                        normals.Add(normal);
+                        normals.Add(normal);
+                        normals.Add(normal);
                     }
                 }
             }
         }
 
-        return Triangulate(vertices, normals, indices);
+        //return Triangulate();
+        return new IsosurfaceMeshResult(vertices, normals, indices);
     }
 
-    private IsosurfaceMeshResult Triangulate(List<Vector3> rawVertices, List<Vector3> rawNormals, List<int> rawIndices)
+    private IsosurfaceMeshResult Triangulate()
     {
         throw new NotImplementedException();
     }
@@ -434,9 +433,9 @@ public class MarchingCubeSurface
     /// between the surface and two points with
     /// values <paramref name="v1"/> and <paramref name="v2"/>.
     /// </summary>
-    private float GetIntersection(float v1, float v2)
+    private static float GetIntersection(float v1, float v2, float surfaceLevel)
     {
         float delta = v2 - v1;
-        return delta == 0 ? SurfaceLevel : (SurfaceLevel - v1) / delta;
+        return delta == 0 ? surfaceLevel : (surfaceLevel - v1) / delta;
     }
 }

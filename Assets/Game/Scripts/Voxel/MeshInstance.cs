@@ -26,7 +26,7 @@ public class MeshInstance
         Mesh.SetVertices(surfaceResult.Vertices);
         Mesh.SetTriangles(surfaceResult.Indices, 0);
 
-        if (surfaceResult.Normals != null)
+        if (surfaceResult.Normals != null && surfaceResult.Normals.Count > 0)
         {
             Mesh.SetNormals(surfaceResult.Normals);
         }
@@ -46,23 +46,29 @@ public class MeshInstance
         int[] triangles = Mesh.triangles;
         Vector3[] vertices = Mesh.vertices;
 
-        Dictionary<float, Vector3> intersections = new Dictionary<float, Vector3>();
+        Vector3 intersection = Vector3.zero;
+        float minimumDistance = Mathf.Infinity;
+
+        Vector3 position = Transform.position;
+
         for (int i = 0; i < triangles.Length; i += 3)
         {
-            Vector3 p1 = vertices[triangles[i]] + Transform.position;
-            Vector3 p2 = vertices[triangles[i + 1]] + Transform.position;
-            Vector3 p3 = vertices[triangles[i + 2]] + Transform.position;
+            Vector3 p1 = vertices[triangles[i]] + position;
+            Vector3 p2 = vertices[triangles[i + 1]] + position;
+            Vector3 p3 = vertices[triangles[i + 2]] + position;
 
             if (!Intersect(p1, p2, p3, ray, out point)) continue;
 
             float distance = Vector3.Distance(ray.origin, point);
-            intersections[distance] = point;
+            if (distance < minimumDistance)
+            {
+                intersection = point;
+                minimumDistance = distance;
+            }
         }
 
-        if (intersections.Count == 0) return false;
-
-        point = intersections[intersections.Min(pair => pair.Key)];
-        return true;
+        point = intersection;
+        return minimumDistance != Mathf.Infinity;
     }
 
     public static bool Intersect(Vector3 p1, Vector3 p2, Vector3 p3, Ray ray, out Vector3 point)

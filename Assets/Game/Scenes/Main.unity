@@ -406,7 +406,7 @@ MonoBehaviour:
   enableEditing: 1
   test: {fileID: 2055800628}
   modificationRadius: 2
-  modificationPower: 10
+  modificationPower: 2
 --- !u!1 &1546580101
 GameObject:
   m_ObjectHideFlags: 0
